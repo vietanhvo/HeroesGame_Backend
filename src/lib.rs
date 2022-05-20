@@ -1,2 +1,2 @@
 mod auth;
-pub use auth::BasicAuth;
+pub use auth::JWTAuth;
