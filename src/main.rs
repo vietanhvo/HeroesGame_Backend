@@ -4,19 +4,22 @@ extern crate rocket;
 extern crate diesel_migrations;
 
 use dotenv::dotenv;
+use rocket::http::Status;
 use std::env;
 
+use heroes_game_backend::models::*;
+use heroes_game_backend::repositories::*;
 use heroes_game_backend::JWTAuth;
 
 use hmac::{Hmac, Mac};
 use jwt::SignWithKey;
 use rocket::fairing::AdHoc;
 use rocket::http::{Cookie, CookieJar, Method};
+use rocket::response::status;
 use rocket::serde::json::{json, Json, Value};
 use rocket::Build;
 use rocket_cors::{AllowedHeaders, AllowedOrigins};
 use rocket_sync_db_pools::database;
-use serde::Deserialize;
 use sha2::Sha256;
 use std::error::Error;
 
@@ -25,14 +28,8 @@ embed_migrations!();
 #[database("mysql_db")]
 struct DbConnection(diesel::MysqlConnection);
 
-#[derive(Deserialize)]
-pub struct User {
-    pub email: String,
-    pub password: String,
-}
-
-#[post("/login", format = "json", data = "<user_auth>")]
-async fn login(user_auth: Json<User>, cookies: &CookieJar<'_>) -> Value {
+#[post("/api/login", format = "json", data = "<user_auth>")]
+async fn login(user_auth: Json<AuthUser>, cookies: &CookieJar<'_>) -> Value {
     dotenv().ok();
     let user_auth = user_auth.into_inner();
 
@@ -56,6 +53,19 @@ async fn login(user_auth: Json<User>, cookies: &CookieJar<'_>) -> Value {
         "status": "success",
         "message": "Logged in successfully",
     })
+}
+
+#[post("/api/register", format = "json", data = "<new_user>")]
+async fn register(
+    conn: DbConnection,
+    new_user: Json<NewUser>,
+) -> Result<Value, status::Custom<Value>> {
+    conn.run(|c| {
+        UserRepository::create_account(c, new_user.into_inner())
+            .map(|rustacean| json!(rustacean))
+            .map_err(|e| status::Custom(Status::InternalServerError, json!(e.to_string())))
+    })
+    .await
 }
 
 #[get("/test")]
@@ -107,7 +117,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Launch Server
     let _rocket = rocket::build()
-        .mount("/", routes![login, test])
+        .mount("/", routes![login, register, test])
         .register("/", catchers![unauthorized, not_found])
         .attach(cors)
         .attach(DbConnection::fairing())
