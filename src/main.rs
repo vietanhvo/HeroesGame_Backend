@@ -29,30 +29,40 @@ embed_migrations!();
 struct DbConnection(diesel::MysqlConnection);
 
 #[post("/api/login", format = "json", data = "<user_auth>")]
-async fn login(user_auth: Json<AuthUser>, cookies: &CookieJar<'_>) -> Value {
-    dotenv().ok();
-    let user_auth = user_auth.into_inner();
+async fn login(
+    conn: DbConnection,
+    user_auth: Json<AuthUser>,
+    cookies: &CookieJar<'_>,
+) -> Result<Value, status::Custom<Value>> {
+    let auth_result = conn
+        .run(|c| {
+            UserRepository::verify_account(c, user_auth.into_inner())
+                .map(|user_info| user_info)
+                .map_err(|e| status::Custom(Status::Unauthorized, json!(e.to_string())))
+        })
+        .await;
 
-    let key: Hmac<Sha256> =
-        Hmac::new_from_slice(env::var("JWT_SECRET").unwrap().as_bytes()).unwrap();
-    let jwt_token = user_auth.email.sign_with_key(&key).unwrap();
+    match auth_result {
+        Ok(user_info) => {
+            dotenv().ok();
+            // Generate JWT Token
+            let key: Hmac<Sha256> =
+                Hmac::new_from_slice(env::var("JWT_SECRET").unwrap().as_bytes()).unwrap();
+            let jwt_token = user_info.email.clone().sign_with_key(&key).unwrap();
 
-    // Construct Cookie: domain = empty, secure = true, SameSite = None
-    // for cookies can be stored in web browser in localhost
-    let cookie = Cookie::build("token", jwt_token)
-        .path("/")
-        .secure(true)
-        .same_site(rocket::http::SameSite::None)
-        .http_only(true)
-        .finish();
+            // Construct Cookie: domain = empty, secure = true, SameSite = None
+            // for cookies can be stored in web browser in localhost
+            let cookie = Cookie::build("token", jwt_token)
+                .path("/")
+                .secure(true)
+                .same_site(rocket::http::SameSite::None)
+                .http_only(true);
 
-    cookies.add_private(cookie);
-    // cookies.add_private(Cookie::new("token", jwt_token));
-
-    json!({
-        "status": "success",
-        "message": "Logged in successfully",
-    })
+            cookies.add_private(cookie.finish());
+            Ok(json!(user_info))
+        }
+        Err(e) => Err(e),
+    }
 }
 
 #[post("/api/register", format = "json", data = "<new_user>")]
@@ -62,7 +72,7 @@ async fn register(
 ) -> Result<Value, status::Custom<Value>> {
     conn.run(|c| {
         UserRepository::create_account(c, new_user.into_inner())
-            .map(|rustacean| json!(rustacean))
+            .map(|status| json!(status))
             .map_err(|e| status::Custom(Status::InternalServerError, json!(e.to_string())))
     })
     .await
