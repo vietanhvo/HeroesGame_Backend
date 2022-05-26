@@ -1,20 +1,29 @@
 #[macro_use]
 extern crate rocket;
-extern crate dotenv;
+#[macro_use]
+extern crate diesel_migrations;
 
 use dotenv::dotenv;
 use std::env;
 
 use heroes_game_backend::JWTAuth;
+
 use hmac::{Hmac, Mac};
 use jwt::SignWithKey;
+use rocket::fairing::AdHoc;
 use rocket::http::{Cookie, CookieJar, Method};
 use rocket::serde::json::{json, Json, Value};
+use rocket::Build;
+use rocket_cors::{AllowedHeaders, AllowedOrigins};
+use rocket_sync_db_pools::database;
 use serde::Deserialize;
 use sha2::Sha256;
-
-use rocket_cors::{AllowedHeaders, AllowedOrigins};
 use std::error::Error;
+
+embed_migrations!();
+
+#[database("mysql_db")]
+struct DbConnection(diesel::MysqlConnection);
 
 #[derive(Deserialize)]
 pub struct User {
@@ -31,8 +40,8 @@ async fn login(user_auth: Json<User>, cookies: &CookieJar<'_>) -> Value {
         Hmac::new_from_slice(env::var("JWT_SECRET").unwrap().as_bytes()).unwrap();
     let jwt_token = user_auth.email.sign_with_key(&key).unwrap();
 
-    // Construct Cookie with domain = empty, secure = true, SameSite = None for cookies in web
-    // browser with localhost
+    // Construct Cookie: domain = empty, secure = true, SameSite = None
+    // for cookies can be stored in web browser in localhost
     let cookie = Cookie::build("token", jwt_token)
         .path("/")
         .secure(true)
@@ -64,6 +73,22 @@ fn not_found(_req: &rocket::Request) -> Value {
     json!("Not found")
 }
 
+async fn run_db_migrations(
+    rocket: rocket::Rocket<Build>,
+) -> Result<rocket::Rocket<Build>, rocket::Rocket<Build>> {
+    DbConnection::get_one(&rocket)
+        .await
+        .expect("Failed to retrieve database connection")
+        .run(|c| match embedded_migrations::run(c) {
+            Ok(()) => Ok(rocket),
+            Err(e) => {
+                println!("Failed to run database migrations: {:?}", e);
+                Err(rocket)
+            }
+        })
+        .await
+}
+
 #[rocket::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // CORS
@@ -85,6 +110,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .mount("/", routes![login, test])
         .register("/", catchers![unauthorized, not_found])
         .attach(cors)
+        .attach(DbConnection::fairing())
+        .attach(AdHoc::try_on_ignite(
+            "Database Migrations",
+            run_db_migrations,
+        ))
+        .ignite()
+        .await?
         .launch()
         .await;
     Ok(())
