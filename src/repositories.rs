@@ -1,7 +1,7 @@
 use super::models::*;
 use super::schema::*;
 use argon2::{
-    password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
+    password_hash::{rand_core::OsRng, PasswordHasher, SaltString},
     Argon2,
 };
 use diesel::prelude::*;
@@ -28,7 +28,22 @@ impl UserRepository {
         Self::last_id(conn)
     }
 
-    fn last_id(c: &MysqlConnection) -> QueryResult<i32> {
-        User::table.select(User::id).order(User::id.desc()).first(c)
+    pub fn verify_account(conn: &MysqlConnection, auth_user: AuthUser) -> QueryResult<i32> {
+        let hashed_user_password: String = User::table
+            .filter(User::email.eq(auth_user.email))
+            .select(User::password)
+            .first(conn)
+            .unwrap();
+        Self::verify_password(&hashed_user_password);
+
+        Self::last_id(conn)
+    }
+
+    fn last_id(conn: &MysqlConnection) -> QueryResult<i32> {
+        User::table.select(User::id).order(User::id.desc()).first(conn)
+    }
+
+    fn verify_password(hashed_user_password: &str) -> bool {
+
     }
 }
