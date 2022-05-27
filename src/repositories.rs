@@ -5,7 +5,7 @@ use argon2::{
     Argon2,
 };
 use diesel::prelude::*;
-use diesel::result::{Error, QueryResult};
+use diesel::result::QueryResult;
 
 pub struct UserRepository;
 
@@ -39,19 +39,34 @@ impl UserRepository {
         Ok(String::from("Your account is created successfully!"))
     }
 
-    pub fn verify_account(conn: &MysqlConnection, auth_user: AuthUser) -> QueryResult<UserInfo> {
+    pub fn verify_account(conn: &MysqlConnection, auth_user: AuthUser) -> Result<UserInfo, String> {
         // Query password by email in database
-        let hashed_user_password: String = User::table
+        let hashed_user_password: String = match User::table
             .filter(User::email.eq(&auth_user.email))
             .select(User::password)
-            .first(conn)?;
+            .first(conn)
+        {
+            Ok(hashed_password) => hashed_password,
+            Err(e) => {
+                return Err(e.to_string());
+            }
+        };
 
-        let compared_password = Self::verify_password(&hashed_user_password, &auth_user.password)
-            .expect("Password is not correct!");
-        if compared_password {
-            Self::find_by_email(conn, &auth_user.email)
-        } else {
-            Err(Error::NotFound)
+        match Self::verify_password(&hashed_user_password, &auth_user.password) {
+            Ok(compared_password) => {
+                if compared_password {
+                    // If password is correct, query user info
+                    match Self::find_by_email(conn, &auth_user.email) {
+                        Ok(user) => Ok(user),
+                        Err(e) => Err(e.to_string()),
+                    }
+                } else {
+                    return Err(String::from("Your password is incorrect!"));
+                }
+            }
+            Err(e) => {
+                return Err(e.to_string());
+            }
         }
     }
 
