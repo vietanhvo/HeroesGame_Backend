@@ -1,0 +1,12 @@
+[default]
+port = 8000
+
+[debug]
+address = "127.0.0.1"
+
+[release]
+address = "0.0.0.0"
+secret_key = "SUPER_PRIVATE_COOKIES_SECRET_KEY"
+
+[global.databases]
+mysql_db = { url = "mysql://root:Admin123%21%3F@localhost/heroes_game" }
