@@ -31,9 +31,12 @@ async fn login(
     user_auth: Json<AuthUser>,
     cookies: &CookieJar<'_>,
 ) -> Result<Value, status::Custom<Value>> {
+    let user_auth = user_auth.into_inner();
+    let remember = user_auth.remember;
+
     let auth_result = conn
         .run(|c| {
-            UserRepository::verify_account(c, user_auth.into_inner())
+            UserRepository::verify_account(c, user_auth)
                 .map(|user_info| user_info)
                 .map_err(|e| status::Custom(Status::Unauthorized, json!(e.to_string())))
         })
@@ -49,11 +52,15 @@ async fn login(
 
             // Construct Cookie: domain = empty, secure = true, SameSite = None
             // for cookies can be stored in web browser in localhost
-            let cookie = Cookie::build("token", jwt_token)
+            let mut cookie = Cookie::build("token", jwt_token)
                 .path("/")
                 .secure(true)
                 .same_site(rocket::http::SameSite::None)
                 .http_only(true);
+
+            if !remember {
+                cookie = cookie.expires(None);
+            }
 
             cookies.add_private(cookie.finish());
             Ok(json!(user_info))

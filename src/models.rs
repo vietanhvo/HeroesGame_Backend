@@ -34,4 +34,5 @@ pub struct NewUser {
 pub struct AuthUser {
     pub email: String,
     pub password: String,
+    pub remember: bool,
 }
