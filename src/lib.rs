@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate diesel;
 
+pub mod database;
+
 mod auth;
 pub use auth::JWTAuth;
 

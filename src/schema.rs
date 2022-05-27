@@ -1,4 +1,5 @@
 table! {
+    #[allow(non_snake_case)]
     User (id) {
         id -> Integer,
         first_name -> Varchar,

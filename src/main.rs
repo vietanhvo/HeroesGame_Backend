@@ -7,6 +7,7 @@ use dotenv::dotenv;
 use rocket::http::Status;
 use std::env;
 
+use heroes_game_backend::database::DbConnection;
 use heroes_game_backend::models::*;
 use heroes_game_backend::repositories::*;
 use heroes_game_backend::JWTAuth;
@@ -19,14 +20,10 @@ use rocket::response::status;
 use rocket::serde::json::{json, Json, Value};
 use rocket::Build;
 use rocket_cors::{AllowedHeaders, AllowedOrigins};
-use rocket_sync_db_pools::database;
 use sha2::Sha256;
 use std::error::Error;
 
 embed_migrations!();
-
-#[database("mysql_db")]
-struct DbConnection(diesel::MysqlConnection);
 
 #[post("/api/login", format = "json", data = "<user_auth>")]
 async fn login(
