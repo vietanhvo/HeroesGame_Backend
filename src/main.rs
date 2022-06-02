@@ -15,6 +15,7 @@ use heroes_game_backend::JWTAuth;
 use hmac::{Hmac, Mac};
 use jwt::SignWithKey;
 use rocket::fairing::AdHoc;
+use rocket::figment::{util::map, value};
 use rocket::http::{Cookie, CookieJar, Method};
 use rocket::response::status;
 use rocket::serde::json::{json, Json, Value};
@@ -115,6 +116,14 @@ async fn run_db_migrations(
 
 #[rocket::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    // Config database
+    dotenv().ok();
+    let db: value::Map<_, value::Value> = map! {
+        "url" => env::var("DATABASE_URL").unwrap().into(),
+    };
+
+    let figment = rocket::Config::figment().merge(("databases", map!["mysql_db" => db]));
+
     // CORS
     let allowed_origins = AllowedOrigins::some_exact(&["http://localhost:3000"]);
     let cors = rocket_cors::CorsOptions {
@@ -130,7 +139,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     .to_cors()?;
 
     // Launch Server
-    let _rocket = rocket::build()
+    let _rocket = rocket::custom(figment)
         .mount("/", routes![login, register, test])
         .register("/", catchers![unauthorized, not_found])
         .attach(cors)
