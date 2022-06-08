@@ -6,16 +6,18 @@ use serde::{Deserialize, Serialize};
 pub struct UserInfo {
     // Don't send this field in the response
     #[serde(skip_serializing)]
-    pub id: i32,
+    pub user_id: u64,
     pub first_name: String,
     pub surname: String,
     pub email: String,
     pub date_of_birth: NaiveDate,
     pub gender: String,
+    pub gold: String,
     // Don't send this field in the response
     #[serde(skip_serializing)]
     pub password: String,
 }
+
 
 // Model for register users
 #[derive(Insertable, Deserialize)]

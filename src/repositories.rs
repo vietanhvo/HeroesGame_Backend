@@ -10,7 +10,7 @@ use diesel::result::QueryResult;
 pub struct UserRepository;
 
 impl UserRepository {
-    pub fn find_by_id(c: &MysqlConnection, id: i32) -> QueryResult<UserInfo> {
+    pub fn find_by_id(c: &MysqlConnection, id: u64) -> QueryResult<UserInfo> {
         User::table.find(id).get_result::<UserInfo>(c)
     }
 

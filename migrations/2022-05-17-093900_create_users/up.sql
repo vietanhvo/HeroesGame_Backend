@@ -7,5 +7,5 @@ CREATE TABLE User (
     date_of_birth DATE NOT NULL,
     gender ENUM("m", "f", "o") NOT NULL,
     password VARCHAR(255) NOT NULL,
-    gold DECIMAL(12, 2) NOT NULL DEFAULT 10000.00
+    gold FLOAT NOT NULL DEFAULT 10000
 )

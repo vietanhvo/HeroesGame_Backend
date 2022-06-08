@@ -8,6 +8,6 @@ CREATE TABLE Weapon (
     level_min TINYINT UNSIGNED NOT NULL,
     level_max TINYINT UNSIGNED NOT NULL,
     win_rate_increase FLOAT NOT NULL,
-    price DECIMAL(12, 2) NOT NULL,
+    price FLOAT NOT NULL,
     FOREIGN KEY (class_id) REFERENCES Class(class_id)
 )
