@@ -1,0 +1,10 @@
+-- Your SQL goes here
+CREATE TABLE BattleHistory (
+    battle_id SERIAL PRIMARY KEY,
+    hero_id BIGINT UNSIGNED NOT NULL,
+    monster_id BIGINT UNSIGNED NOT NULL,
+    result BOOLEAN NOT NULL,
+    time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (hero_id) REFERENCES Hero(hero_id) ON DELETE CASCADE,
+    FOREIGN KEY (monster_id) REFERENCES Monster(monster_id) ON DELETE CASCADE
+)
