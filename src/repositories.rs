@@ -10,17 +10,20 @@ use diesel::result::QueryResult;
 pub struct UserRepository;
 
 impl UserRepository {
-    pub fn find_by_id(c: &MysqlConnection, id: u64) -> QueryResult<UserInfo> {
-        User::table.find(id).get_result::<UserInfo>(c)
+    pub fn find_by_id(c: &MysqlConnection, id: u64) -> QueryResult<user_models::UserInfo> {
+        User::table.find(id).get_result::<user_models::UserInfo>(c)
     }
 
-    pub fn find_by_email(c: &MysqlConnection, email: &str) -> QueryResult<UserInfo> {
+    pub fn find_by_email(c: &MysqlConnection, email: &str) -> QueryResult<user_models::UserInfo> {
         User::table
             .filter(User::email.eq(email))
-            .get_result::<UserInfo>(c)
+            .get_result::<user_models::UserInfo>(c)
     }
 
-    pub fn create_account(conn: &MysqlConnection, mut new_user: NewUser) -> QueryResult<String> {
+    pub fn create_account(
+        conn: &MysqlConnection,
+        mut new_user: user_models::NewUser,
+    ) -> QueryResult<String> {
         // Create a salt
         let salt = SaltString::generate(&mut OsRng);
 
@@ -39,7 +42,10 @@ impl UserRepository {
         Ok(String::from("Your account is created successfully!"))
     }
 
-    pub fn verify_account(conn: &MysqlConnection, auth_user: AuthUser) -> Result<UserInfo, String> {
+    pub fn verify_account(
+        conn: &MysqlConnection,
+        auth_user: user_models::AuthUser,
+    ) -> Result<user_models::UserInfo, String> {
         // Query password by email in database
         let hashed_user_password: String = match User::table
             .filter(User::email.eq(&auth_user.email))

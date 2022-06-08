@@ -10,7 +10,7 @@ use rocket::{
 };
 use sha2::Sha256;
 
-use crate::{models::UserInfo, repositories::UserRepository};
+use crate::{models::user_models::UserInfo, repositories::UserRepository};
 
 pub struct JWTAuth {
     pub token: String,

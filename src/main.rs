@@ -29,7 +29,7 @@ embed_migrations!();
 #[post("/api/login", format = "json", data = "<user_auth>")]
 async fn login(
     conn: DbConnection,
-    user_auth: Json<AuthUser>,
+    user_auth: Json<user_models::AuthUser>,
     cookies: &CookieJar<'_>,
 ) -> Result<Value, status::Custom<Value>> {
     let user_auth = user_auth.into_inner();
@@ -73,7 +73,7 @@ async fn login(
 #[post("/api/register", format = "json", data = "<new_user>")]
 async fn register(
     conn: DbConnection,
-    new_user: Json<NewUser>,
+    new_user: Json<user_models::NewUser>,
 ) -> Result<Value, status::Custom<Value>> {
     conn.run(|c| {
         UserRepository::create_account(c, new_user.into_inner())
