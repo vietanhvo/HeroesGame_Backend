@@ -1,5 +1,6 @@
 -- Your SQL goes here
-CREATE TABLE BattleHistory (
+CREATE TABLE IF NOT EXISTS
+  BattleHistory (
     battle_id SERIAL PRIMARY KEY,
     hero_id BIGINT UNSIGNED NOT NULL,
     monster_id BIGINT UNSIGNED NOT NULL,
@@ -7,4 +8,4 @@ CREATE TABLE BattleHistory (
     time TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (hero_id) REFERENCES Hero(hero_id) ON DELETE CASCADE,
     FOREIGN KEY (monster_id) REFERENCES Monster(monster_id) ON DELETE CASCADE
-)
+  )

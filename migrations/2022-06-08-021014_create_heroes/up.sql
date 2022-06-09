@@ -1,5 +1,6 @@
 -- Your SQL goes here
-CREATE TABLE Hero (
+CREATE TABLE IF NOT EXISTS
+  Hero (
     hero_id SERIAL PRIMARY KEY,
     user_id BIGINT UNSIGNED NOT NULL,
     class_id BIGINT UNSIGNED NOT NULL,
@@ -14,4 +15,4 @@ CREATE TABLE Hero (
     FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE,
     FOREIGN KEY (class_id) REFERENCES Class(class_id),
     FOREIGN KEY (weapon_id) REFERENCES Weapon(weapon_id)
-)
+  )

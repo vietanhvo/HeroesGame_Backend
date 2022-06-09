@@ -1,5 +1,6 @@
 -- Your SQL goes here
-CREATE TABLE Weapon (
+CREATE TABLE IF NOT EXISTS
+  Weapon (
     weapon_id SERIAL PRIMARY KEY,
     class_id BIGINT UNSIGNED NOT NULL,
     name VARCHAR(255) NOT NULL,
@@ -10,4 +11,4 @@ CREATE TABLE Weapon (
     win_rate_increase INTEGER UNSIGNED NOT NULL,
     price INTEGER UNSIGNED NOT NULL,
     FOREIGN KEY (class_id) REFERENCES Class(class_id)
-)
+  )

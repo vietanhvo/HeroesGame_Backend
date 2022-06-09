@@ -1,5 +1,6 @@
 -- Your SQL goes here
-CREATE TABLE Market (
+CREATE TABLE IF NOT EXISTS
+  Market (
     transaction_id SERIAL PRIMARY KEY,
     seller_id BIGINT UNSIGNED NOT NULL,
     buyer_id BIGINT UNSIGNED NOT NULL,
@@ -11,4 +12,4 @@ CREATE TABLE Market (
     FOREIGN KEY (seller_id) REFERENCES User(user_id),
     FOREIGN KEY (buyer_id) REFERENCES User(user_id),
     FOREIGN KEY (hero_id) REFERENCES Hero(hero_id) ON DELETE CASCADE
-)
+  )
