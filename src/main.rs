@@ -89,9 +89,9 @@ async fn register(
     .await
 }
 
-#[get("/test")]
-async fn test(_auth: JWTAuth) -> Value {
-    json!("Hello, Rustaceans!")
+#[get("/api/token")]
+async fn test_token(auth: JWTAuth) -> Value {
+    json!(auth.user)
 }
 
 #[catch(401)]
@@ -146,7 +146,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Launch Server
     let _rocket = rocket::custom(figment)
-        .mount("/", routes![login, logout, register, test])
+        .mount("/", routes![login, logout, register, test_token])
         .register("/", catchers![unauthorized, not_found])
         .attach(cors)
         .attach(DbConnection::fairing())
