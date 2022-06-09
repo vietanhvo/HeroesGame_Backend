@@ -11,13 +11,13 @@ pub struct UserRepository;
 
 impl UserRepository {
     pub fn find_by_id(c: &MysqlConnection, id: u64) -> QueryResult<UserInfo> {
-        User::table.find(id).get_result::<UserInfo>(c)
+        User::table.find(id).first::<UserInfo>(c)
     }
 
     pub fn find_by_email(c: &MysqlConnection, email: &str) -> QueryResult<UserInfo> {
         User::table
             .filter(User::email.eq(email))
-            .get_result::<UserInfo>(c)
+            .first::<UserInfo>(c)
     }
 
     pub fn create_account(conn: &MysqlConnection, mut new_user: NewUser) -> QueryResult<String> {

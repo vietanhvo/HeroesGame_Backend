@@ -70,6 +70,12 @@ async fn login(
     }
 }
 
+#[get("/api/logout", format = "json")]
+async fn logout(cookies: &CookieJar<'_>) -> Result<Value, status::Custom<Value>> {
+    cookies.remove_private(Cookie::named("token"));
+    Ok(json!({"message": "Logout Successfully"}))
+}
+
 #[post("/api/register", format = "json", data = "<new_user>")]
 async fn register(
     conn: DbConnection,
@@ -140,7 +146,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     // Launch Server
     let _rocket = rocket::custom(figment)
-        .mount("/", routes![login, register, test])
+        .mount("/", routes![login, logout, register, test])
         .register("/", catchers![unauthorized, not_found])
         .attach(cors)
         .attach(DbConnection::fairing())

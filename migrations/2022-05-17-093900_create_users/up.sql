@@ -5,7 +5,7 @@ CREATE TABLE User (
     surname VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     date_of_birth DATE NOT NULL,
-    gender ENUM("m", "f", "o") NOT NULL,
+    gender CHAR(1) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    gold FLOAT NOT NULL DEFAULT 10000
+    gold INTEGER UNSIGNED NOT NULL DEFAULT 10000
 )

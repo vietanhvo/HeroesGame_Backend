@@ -28,8 +28,8 @@ table! {
         name -> Varchar,
         level -> Unsigned<Tinyint>,
         stars -> Unsigned<Tinyint>,
-        price -> Varchar,
-        experience -> Varchar,
+        price -> Unsigned<Integer>,
+        experience -> Unsigned<Integer>,
         energy -> Unsigned<Integer>,
         last_battle_time -> Nullable<Timestamp>,
     }
@@ -49,7 +49,7 @@ table! {
         item_id -> Unsigned<Bigint>,
         name -> Varchar,
         description -> Nullable<Text>,
-        price -> Varchar,
+        price -> Unsigned<Integer>,
     }
 }
 
@@ -62,8 +62,8 @@ table! {
         hero_id -> Unsigned<Bigint>,
         post_time -> Timestamp,
         end_time -> Timestamp,
-        price -> Varchar,
-        status -> Text,
+        price -> Unsigned<Integer>,
+        status -> Varchar,
     }
 }
 
@@ -74,7 +74,7 @@ table! {
         name -> Varchar,
         description -> Nullable<Text>,
         level -> Tinyint,
-        win_rate -> Varchar,
+        win_rate -> Unsigned<Integer>,
     }
 }
 
@@ -87,8 +87,8 @@ table! {
         description -> Nullable<Text>,
         level_min -> Unsigned<Tinyint>,
         star_min -> Unsigned<Tinyint>,
-        win_rate_increase -> Varchar,
-        price -> Varchar,
+        win_rate_increase -> Unsigned<Integer>,
+        price -> Unsigned<Integer>,
     }
 }
 
@@ -102,7 +102,7 @@ table! {
         date_of_birth -> Date,
         gender -> Char,
         password -> Varchar,
-        gold -> Varchar,
+        gold -> Unsigned<Integer>,
     }
 }
 
@@ -125,8 +125,8 @@ table! {
         rare -> Unsigned<Tinyint>,
         level_min -> Unsigned<Tinyint>,
         level_max -> Unsigned<Tinyint>,
-        win_rate_increase -> Varchar,
-        price -> Varchar,
+        win_rate_increase -> Unsigned<Integer>,
+        price -> Unsigned<Integer>,
     }
 }
 

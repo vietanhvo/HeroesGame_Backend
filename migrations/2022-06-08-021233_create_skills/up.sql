@@ -6,7 +6,7 @@ CREATE TABLE Skill (
     description TEXT,
     level_min TINYINT UNSIGNED NOT NULL,
     star_min TINYINT UNSIGNED NOT NULL,
-    win_rate_increase FLOAT NOT NULL,
-    price FLOAT NOT NULL,
+    win_rate_increase INTEGER UNSIGNED NOT NULL,
+    price INTEGER UNSIGNED NOT NULL,
     FOREIGN KEY (class_id) REFERENCES Class(class_id)
 )

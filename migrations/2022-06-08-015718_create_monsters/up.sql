@@ -4,5 +4,5 @@ CREATE TABLE Monster (
     name VARCHAR(255) NOT NULL,
     description TEXT,
     level TINYINT NOT NULL,
-    win_rate FLOAT NOT NULL
+    win_rate INTEGER UNSIGNED NOT NULL
 )

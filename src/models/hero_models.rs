@@ -13,8 +13,8 @@ pub struct HeroInfo {
     pub name: String,
     pub level: u8,
     pub stars: u8,
-    pub price: String,
-    pub experience: String,
+    pub price: u32,
+    pub experience: u32,
     pub energy: u32,
     pub last_battle_time: NaiveDateTime,
 }
@@ -26,5 +26,5 @@ pub struct NewHero {
     pub user_id: u64,
     pub class_id: u64,
     pub name: String,
-    pub price: String,
+    pub price: u32,
 }
