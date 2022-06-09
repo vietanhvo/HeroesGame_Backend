@@ -52,7 +52,7 @@ async fn login(
             let jwt_token = user_info.email.clone().sign_with_key(&key).unwrap();
 
             // Construct Cookie: domain = empty, secure = true, SameSite = None
-            // for cookies can be stored in web browser in localhost
+            // for cookies can be stored in web browser on localhost
             let mut cookie = Cookie::build("token", jwt_token)
                 .path("/")
                 .secure(true)
@@ -71,8 +71,14 @@ async fn login(
 }
 
 #[get("/api/logout", format = "json")]
-async fn logout(cookies: &CookieJar<'_>) -> Result<Value, status::Custom<Value>> {
-    cookies.remove_private(Cookie::named("token"));
+async fn logout(cookies: &CookieJar<'_>, _auth: JWTAuth) -> Result<Value, status::Custom<Value>> {
+    let cookie = Cookie::build("token", "")
+        .path("/")
+        .secure(true)
+        .same_site(rocket::http::SameSite::None)
+        .http_only(true);
+
+    cookies.remove_private(cookie.finish());
     Ok(json!({"message": "Logout Successfully"}))
 }
 
