@@ -5,7 +5,7 @@ use dotenv::dotenv;
 use std::env;
 
 use heroes_game_backend::database::{run_db_migrations, DbConnection};
-use heroes_game_backend::routes::{auth_route, catch_route};
+use heroes_game_backend::routes::{auth_route, catch_route, hero_route};
 
 use rocket::fairing::AdHoc;
 use rocket::figment::{util::map, value};
@@ -40,14 +40,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Launch Server
     let _rocket = rocket::custom(figment)
         .mount(
-            "/",
+            "/auth",
             routes![
                 auth_route::login,
                 auth_route::logout,
                 auth_route::register,
-                auth_route::test_token
+                auth_route::test_token,
             ],
         )
+        .mount("/hero", routes![hero_route::buy_new_hero])
+        // .mount("/hero", routes![hero_route::buy_new_hero])
         .register(
             "/",
             catchers![catch_route::unauthorized, catch_route::not_found],

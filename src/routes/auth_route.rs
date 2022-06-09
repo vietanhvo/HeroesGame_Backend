@@ -1,23 +1,22 @@
 use dotenv::dotenv;
-use rocket::http::Status;
 use std::env;
 
 use crate::auth::JWTAuth;
 use crate::database::DbConnection;
-use crate::models::*;
-use crate::repositories::*;
+use crate::models::user_models::*;
+use crate::repositories::UserRepository;
 
 use hmac::{Hmac, Mac};
 use jwt::SignWithKey;
-use rocket::http::{Cookie, CookieJar};
+use rocket::http::{Status, Cookie, CookieJar};
 use rocket::response::status;
 use rocket::serde::json::{json, Json, Value};
 use sha2::Sha256;
 
-#[post("/api/login", format = "json", data = "<user_auth>")]
+#[post("/login", format = "json", data = "<user_auth>")]
 pub async fn login(
     conn: DbConnection,
-    user_auth: Json<user_models::AuthUser>,
+    user_auth: Json<AuthUser>,
     cookies: &CookieJar<'_>,
 ) -> Result<Value, status::Custom<Value>> {
     let user_auth = user_auth.into_inner();
@@ -58,10 +57,10 @@ pub async fn login(
     }
 }
 
-#[get("/api/logout", format = "json")]
+#[get("/logout", format = "json")]
 pub async fn logout(
-    cookies: &CookieJar<'_>,
     _auth: JWTAuth,
+    cookies: &CookieJar<'_>,
 ) -> Result<Value, status::Custom<Value>> {
     let cookie = Cookie::build("token", "")
         .path("/")
@@ -73,10 +72,10 @@ pub async fn logout(
     Ok(json!({"message": "Logout Successfully"}))
 }
 
-#[post("/api/register", format = "json", data = "<new_user>")]
+#[post("/register", format = "json", data = "<new_user>")]
 pub async fn register(
     conn: DbConnection,
-    new_user: Json<user_models::NewUser>,
+    new_user: Json<NewUser>,
 ) -> Result<Value, status::Custom<Value>> {
     conn.run(|c| {
         UserRepository::create_account(c, new_user.into_inner())
@@ -86,7 +85,7 @@ pub async fn register(
     .await
 }
 
-#[get("/api/token")]
+#[get("/token")]
 pub async fn test_token(auth: JWTAuth) -> Value {
     json!(auth.user)
 }

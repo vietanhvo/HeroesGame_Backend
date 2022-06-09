@@ -1,5 +1,5 @@
 use crate::models::user_models::*;
-use crate::schema::*;
+use crate::schema::User;
 use argon2::{
     password_hash::{rand_core::OsRng, PasswordHash, PasswordHasher, PasswordVerifier, SaltString},
     Argon2,
@@ -10,6 +10,7 @@ use diesel::result::QueryResult;
 pub struct UserRepository;
 
 impl UserRepository {
+    // Query
     pub fn find_by_id(c: &MysqlConnection, id: u64) -> QueryResult<UserInfo> {
         User::table.find(id).first::<UserInfo>(c)
     }
@@ -20,6 +21,11 @@ impl UserRepository {
             .first::<UserInfo>(c)
     }
 
+    pub fn get_gold(c: &MysqlConnection, id: u64) -> QueryResult<u32> {
+        User::table.find(id).select(User::gold).first::<u32>(c)
+    }
+
+    // Account
     pub fn create_account(conn: &MysqlConnection, mut new_user: NewUser) -> QueryResult<String> {
         // Create a salt
         let salt = SaltString::generate(&mut OsRng);
@@ -78,5 +84,41 @@ impl UserRepository {
         Ok(Argon2::default()
             .verify_password(user_password.as_bytes(), &parsed_hash)
             .is_ok())
+    }
+
+    // Update
+    pub fn receive_gold(
+        conn: &MysqlConnection,
+        user_id: u64,
+        gold_increase: u32,
+    ) -> QueryResult<u32> {
+        let user_current_gold = Self::get_gold(conn, user_id)?;
+        diesel::update(User::table.find(user_id))
+            .set(User::gold.eq(user_current_gold + gold_increase))
+            .execute(conn)?;
+        Ok(user_current_gold + gold_increase)
+    }
+
+    pub fn pay_gold(
+        conn: &MysqlConnection,
+        user_id: u64,
+        gold_decrease: u32,
+    ) -> Result<u32, String> {
+        let user_current_gold = match Self::get_gold(conn, user_id) {
+            Ok(gold) => gold,
+            Err(e) => {
+                return Err(e.to_string());
+            }
+        };
+        if user_current_gold < gold_decrease {
+            return Err(String::from("You don't have enough gold!"));
+        }
+        match diesel::update(User::table.find(user_id))
+            .set(User::gold.eq(user_current_gold - gold_decrease))
+            .execute(conn)
+        {
+            Ok(_) => Ok(user_current_gold - gold_decrease),
+            Err(e) => Err(e.to_string()),
+        }
     }
 }
