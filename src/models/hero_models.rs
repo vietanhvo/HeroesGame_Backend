@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Queryable)]
 pub struct HeroInfo {
-    // Don't send this field in the response
     pub user_id: u64,
     pub hero_id: u64,
     pub class_id: u64,
@@ -26,4 +25,10 @@ pub struct NewHero {
     pub class_id: u64,
     pub name: String,
     pub price: u32,
+}
+
+// Model for load heroes
+#[derive(Queryable, Deserialize)]
+pub struct LoadHero {
+    pub user_id: u64,
 }

@@ -48,7 +48,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 auth_route::test_token,
             ],
         )
-        .mount("/hero", routes![hero_route::buy_new_hero])
+        .mount(
+            "/hero",
+            routes![hero_route::buy_new_hero, hero_route::load_heroes],
+        )
         // .mount("/hero", routes![hero_route::buy_new_hero])
         .register(
             "/",

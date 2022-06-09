@@ -7,7 +7,20 @@ use rocket::http::Status;
 use rocket::response::status;
 use rocket::serde::json::{json, Json, Value};
 
-#[post("/hero/buy", format = "json", data = "<new_hero>")]
+#[post("/load", format = "json", data = "<load_hero>")]
+pub async fn load_heroes(
+    conn: DbConnection,
+    load_hero: Json<LoadHero>,
+) -> Result<Value, status::Custom<Value>> {
+    conn.run(|c| {
+        HeroRepository::find_by_user_id(c, load_hero.into_inner())
+            .map(|heroes| json!(heroes))
+            .map_err(|e| status::Custom(Status::InternalServerError, json!(e.to_string())))
+    })
+    .await
+}
+
+#[post("/buy", format = "json", data = "<new_hero>")]
 pub async fn buy_new_hero(
     _auth: JWTAuth,
     conn: DbConnection,
