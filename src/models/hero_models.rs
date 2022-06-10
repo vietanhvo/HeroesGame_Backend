@@ -4,8 +4,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Queryable)]
 pub struct HeroInfo {
-    pub user_id: u64,
     pub hero_id: u64,
+    pub user_id: u64,
     pub class_id: u64,
     pub weapon_id: Option<u64>,
     pub name: String,
