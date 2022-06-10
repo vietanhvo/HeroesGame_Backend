@@ -8,7 +8,7 @@ use crate::repositories::UserRepository;
 
 use hmac::{Hmac, Mac};
 use jwt::SignWithKey;
-use rocket::http::{Status, Cookie, CookieJar};
+use rocket::http::{Cookie, CookieJar, Status};
 use rocket::response::status;
 use rocket::serde::json::{json, Json, Value};
 use sha2::Sha256;
@@ -80,6 +80,17 @@ pub async fn register(
     conn.run(|c| {
         UserRepository::create_account(c, new_user.into_inner())
             .map(|status| json!(status))
+            .map_err(|e| status::Custom(Status::InternalServerError, json!(e.to_string())))
+    })
+    .await
+}
+
+#[get("/gold", format = "json")]
+pub async fn get_gold(auth: JWTAuth, conn: DbConnection) -> Result<Value, status::Custom<Value>> {
+    let user_id = auth.user.user_id;
+    conn.run(move |c| {
+        UserRepository::get_gold(c, user_id)
+            .map(|gold| json!(gold))
             .map_err(|e| status::Custom(Status::InternalServerError, json!(e.to_string())))
     })
     .await

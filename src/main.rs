@@ -46,6 +46,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 auth_route::logout,
                 auth_route::register,
                 auth_route::test_token,
+                auth_route::get_gold,
             ],
         )
         .mount(
