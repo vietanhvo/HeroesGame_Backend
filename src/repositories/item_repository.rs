@@ -133,4 +133,28 @@ impl ItemRepository {
             }
         }
     }
+
+    pub fn increase_item_quantity(
+        conn: &MysqlConnection,
+        use_item: UseItem,
+    ) -> Result<u32, String> {
+        let item_quantity = use_item.quantity;
+        let user_id = use_item.user_id;
+        let item_id = use_item.item_id;
+
+        let current_item_quantity = match Self::load_quantity_item_of_user(conn, user_id, item_id) {
+            Ok(item_quantity) => item_quantity,
+            Err(_) => return Err("Use failed! Error in retrieve item's quantity".to_string()),
+        };
+
+        match diesel::update(UserItem::table)
+            .filter(UserItem::user_id.eq(user_id))
+            .filter(UserItem::item_id.eq(item_id))
+            .set(UserItem::quantity.eq(current_item_quantity + item_quantity))
+            .execute(conn)
+        {
+            Ok(_) => Ok(current_item_quantity + item_quantity),
+            Err(_) => Err("Increase Item failed! Error in update item's quantity".to_string()),
+        }
+    }
 }

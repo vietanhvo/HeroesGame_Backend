@@ -38,5 +38,4 @@ pub struct LoadHero {
 pub struct UpgradeHero {
     pub user_id: u64,
     pub hero_id: u64,
-    pub needed_item_quantity: u32,
 }

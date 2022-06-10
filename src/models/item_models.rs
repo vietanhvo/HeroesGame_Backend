@@ -38,7 +38,7 @@ pub struct LoadItemInfo {
 }
 
 // Model for use Item
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone, Copy)]
 pub struct UseItem {
     pub item_id: u64,
     pub user_id: u64,
