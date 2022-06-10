@@ -2,6 +2,7 @@ use crate::models::item_models::*;
 use crate::repositories::user_repository::UserRepository;
 use crate::schema::{Item, UserItem};
 use diesel::prelude::*;
+use diesel::result::Error;
 
 pub struct ItemRepository;
 
@@ -57,21 +58,78 @@ impl ItemRepository {
         // Minus user's gold first
         UserRepository::pay_gold(conn, user_id, item_price)?;
 
-        // create new hero
-        match diesel::insert_into(UserItem::table)
-            .values(new_item)
+        // Get the current user's item quantity
+        // If NotFound -> insert new data -> return
+        let current_item_quantity = match Self::load_quantity_item_of_user(conn, user_id, item_id) {
+            Ok(quantity) => quantity,
+            Err(Error::NotFound) => {
+                // Not found -> create new item for user
+                match diesel::insert_into(UserItem::table)
+                    .values(new_item)
+                    .execute(conn)
+                {
+                    Ok(_) => return Ok(item_quantity),
+                    Err(_) => {
+                        // Create hero failed -> Plus user's gold back
+                        match UserRepository::receive_gold(conn, user_id, item_price) {
+                            Ok(_) => {
+                                return Err(
+                                    "Bought Item failed! gave back gold to user".to_string()
+                                );
+                            }
+                            Err(_) => {
+                                return Err("SOS! Bought Item failed! Error when gave back gold"
+                                    .to_string());
+                            }
+                        }
+                    }
+                }
+            }
+            Err(_) => return Err("Retrieve current user's item failed!".to_string()),
+        };
+
+        // If Found -> update item quantity
+        let new_item_quantity = current_item_quantity + item_quantity;
+        match diesel::update(UserItem::table)
+            .filter(UserItem::user_id.eq(user_id))
+            .filter(UserItem::item_id.eq(item_id))
+            .set(UserItem::quantity.eq(new_item_quantity))
             .execute(conn)
         {
-            Ok(_) => match Self::load_quantity_item_of_user(conn, user_id, item_id) {
-                Ok(item_quantity) => Ok(item_quantity),
-                Err(_) => Err("Bought successfully! Error in retrieve item's quantity".to_string()),
-            },
+            Ok(_) => Ok(new_item_quantity),
             Err(_) => {
                 // Create hero failed -> Plus user's gold back
                 match UserRepository::receive_gold(conn, user_id, item_price) {
-                    Ok(_) => Err("Bought failed! gave back gold to user".to_string()),
-                    Err(_) => Err("SOS! User's gold is incorrect!".to_string()),
+                    Ok(_) => Err("Bought Item failed! gave back gold to user".to_string()),
+                    Err(_) => Err("SOS! Bought Item failed! Error when gave back gold".to_string()),
                 }
+            }
+        }
+    }
+
+    pub fn use_item(conn: &MysqlConnection, use_item: UseItem) -> Result<u32, String> {
+        let item_quantity = use_item.quantity;
+        let user_id = use_item.user_id;
+        let item_id = use_item.item_id;
+
+        // Check user item quantity
+        let user_item_quantity = match Self::load_quantity_item_of_user(conn, user_id, item_id) {
+            Ok(item_quantity) => item_quantity,
+            Err(_) => return Err("Use failed! Error in retrieve item's quantity".to_string()),
+        };
+
+        if item_quantity > user_item_quantity {
+            Err("Use failed! Not enough item".to_string())
+        } else {
+            // Minus user's item quantity
+            match diesel::update(UserItem::table)
+                .filter(UserItem::user_id.eq(user_id))
+                .filter(UserItem::item_id.eq(item_id))
+                .set(UserItem::quantity.eq(user_item_quantity - item_quantity))
+                .execute(conn)
+            {
+                Ok(_) => Ok(user_item_quantity - item_quantity),
+                Err(_) => Err("Use failed! Error in update item's quantity".to_string()),
             }
         }
     }

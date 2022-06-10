@@ -1,7 +1,10 @@
 use crate::models::hero_models::*;
+use crate::models::item_models::UseItem;
+use crate::repositories::item_repository::ItemRepository;
 use crate::repositories::user_repository::UserRepository;
 use crate::schema::Hero;
 use diesel::prelude::*;
+use rand::Rng;
 
 pub struct HeroRepository;
 
@@ -55,6 +58,49 @@ impl HeroRepository {
                     Err(_) => Err("SOS! User's gold is incorrect!".to_string()),
                 }
             }
+        }
+    }
+
+    pub fn upgrade(conn: &MysqlConnection, upgrade_hero: UpgradeHero) -> Result<u8, String> {
+        let upgrade_percentage = [45, 30, 15, 19, 7];
+        let hero_id = upgrade_hero.hero_id;
+        let user_id = upgrade_hero.user_id;
+        let needed_gem_quantity = upgrade_hero.needed_item_quantity;
+
+        let use_gem = UseItem {
+            user_id,
+            item_id: 1,
+            quantity: needed_gem_quantity,
+        };
+
+        // Retrieve current hero stars
+        let hero_star = match Self::find_by_hero_id(conn, hero_id) {
+            Ok(hero) => hero.stars,
+            Err(_) => return Err("Error in retrieve hero star".to_string()),
+        };
+
+        // Generate random number from 0 to 100
+        let mut rng = rand::thread_rng();
+        let random_number: i32 = rng.gen_range(0..=100);
+
+        // Minus user gem
+        ItemRepository::use_item(conn, use_gem)?;
+
+        // Upgrade hero's stars
+        if upgrade_percentage[hero_star as usize - 1] <= random_number {
+            // Success
+            let new_hero_star = hero_star + 1;
+            match diesel::update(Hero::table)
+                .filter(Hero::hero_id.eq(hero_id))
+                .set(Hero::stars.eq(new_hero_star))
+                .execute(conn)
+            {
+                Ok(_) => Ok(new_hero_star),
+                Err(_) => Err("Error in update Hero db!".to_string()),
+            }
+        } else {
+            // Failed
+            Ok(hero_star)
         }
     }
 

@@ -9,6 +9,7 @@ use rocket::serde::json::{json, Json, Value};
 
 #[post("/load", format = "json", data = "<load_item>")]
 pub async fn load_items(
+    _auth: JWTAuth,
     conn: DbConnection,
     load_item: Json<LoadItem>,
 ) -> Result<Value, status::Custom<Value>> {

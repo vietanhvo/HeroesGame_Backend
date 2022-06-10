@@ -13,7 +13,7 @@ VALUES
   (
     'Gem',
     'This item is used to upgrade your heroes',
-    100
+    10
   );
 
 INSERT INTO
@@ -22,5 +22,5 @@ VALUES
   (
     'Core',
     'This item is used to protect your heroes stars when upgrading',
-    100
+    1000
   );

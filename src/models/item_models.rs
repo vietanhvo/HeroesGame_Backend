@@ -36,3 +36,11 @@ pub struct LoadItem {
 pub struct LoadItemInfo {
     pub item_id: u64,
 }
+
+// Model for use Item
+#[derive(Deserialize)]
+pub struct UseItem {
+    pub item_id: u64,
+    pub user_id: u64,
+    pub quantity: u32,
+}

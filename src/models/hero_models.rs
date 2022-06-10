@@ -32,3 +32,11 @@ pub struct NewHero {
 pub struct LoadHero {
     pub user_id: u64,
 }
+
+// Model for update hero
+#[derive(Deserialize)]
+pub struct UpgradeHero {
+    pub user_id: u64,
+    pub hero_id: u64,
+    pub needed_item_quantity: u32,
+}
