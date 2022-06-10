@@ -25,11 +25,11 @@ pub struct BuyItem {
     pub quantity: u32,
 }
 
-// Model for load items
-#[derive(Queryable, Deserialize)]
-pub struct LoadItem {
-    pub user_id: u64,
-}
+// // Model for load items
+// #[derive(Queryable, Deserialize)]
+// pub struct LoadItem {
+//     pub user_id: u64,
+// }
 
 // Model for load Item info
 #[derive(Queryable, Deserialize)]

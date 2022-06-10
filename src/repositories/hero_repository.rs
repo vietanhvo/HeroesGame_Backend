@@ -18,9 +18,9 @@ impl HeroRepository {
         Hero::table.find(hero_id).first::<HeroInfo>(c)
     }
 
-    pub fn find_by_user_id(c: &MysqlConnection, load_hero: LoadHero) -> QueryResult<Vec<HeroInfo>> {
+    pub fn find_by_user_id(c: &MysqlConnection, user_id: u64) -> QueryResult<Vec<HeroInfo>> {
         Hero::table
-            .filter(Hero::user_id.eq(load_hero.user_id))
+            .filter(Hero::user_id.eq(user_id))
             .get_results::<HeroInfo>(c)
     }
 

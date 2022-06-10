@@ -23,12 +23,9 @@ impl ItemRepository {
         UserItem::table.limit(100).load::<UserItemInfo>(c)
     }
 
-    pub fn find_by_user_id(
-        c: &MysqlConnection,
-        load_item: LoadItem,
-    ) -> QueryResult<Vec<UserItemInfo>> {
+    pub fn find_by_user_id(c: &MysqlConnection, user_id: u64) -> QueryResult<Vec<UserItemInfo>> {
         UserItem::table
-            .filter(UserItem::user_id.eq(load_item.user_id))
+            .filter(UserItem::user_id.eq(user_id))
             .get_results::<UserItemInfo>(c)
     }
 

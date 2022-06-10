@@ -7,14 +7,14 @@ use rocket::http::Status;
 use rocket::response::status;
 use rocket::serde::json::{json, Json, Value};
 
-#[post("/load", format = "json", data = "<load_hero>")]
+#[get("/load", format = "json")]
 pub async fn load_heroes(
-    _auth: JWTAuth,
+    auth: JWTAuth,
     conn: DbConnection,
-    load_hero: Json<LoadHero>,
 ) -> Result<Value, status::Custom<Value>> {
-    conn.run(|c| {
-        HeroRepository::find_by_user_id(c, load_hero.into_inner())
+    let user_id = auth.user.user_id;
+    conn.run(move |c| {
+        HeroRepository::find_by_user_id(c, user_id)
             .map(|heroes| json!(heroes))
             .map_err(|e| status::Custom(Status::InternalServerError, json!(e.to_string())))
     })

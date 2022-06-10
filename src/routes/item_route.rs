@@ -7,14 +7,11 @@ use rocket::http::Status;
 use rocket::response::status;
 use rocket::serde::json::{json, Json, Value};
 
-#[post("/load", format = "json", data = "<load_item>")]
-pub async fn load_items(
-    _auth: JWTAuth,
-    conn: DbConnection,
-    load_item: Json<LoadItem>,
-) -> Result<Value, status::Custom<Value>> {
-    conn.run(|c| {
-        ItemRepository::find_by_user_id(c, load_item.into_inner())
+#[get("/load", format = "json")]
+pub async fn load_items(auth: JWTAuth, conn: DbConnection) -> Result<Value, status::Custom<Value>> {
+    let user_id = auth.user.user_id;
+    conn.run(move |c| {
+        ItemRepository::find_by_user_id(c, user_id)
             .map(|items| json!(items))
             .map_err(|e| status::Custom(Status::InternalServerError, json!(e.to_string())))
     })
