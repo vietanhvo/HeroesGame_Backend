@@ -22,5 +22,5 @@ VALUES
   (
     'Core',
     'This item is used to protect your heroes stars when upgrading',
-    1000
+    100
   );
