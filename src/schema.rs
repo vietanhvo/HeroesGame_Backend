@@ -111,7 +111,7 @@ table! {
     UserItem (user_id, item_id) {
         user_id -> Unsigned<Bigint>,
         item_id -> Unsigned<Bigint>,
-        quantity -> Nullable<Unsigned<Integer>>,
+        quantity -> Unsigned<Integer>,
     }
 }
 
