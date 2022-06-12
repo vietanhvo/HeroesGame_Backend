@@ -48,3 +48,18 @@ pub async fn upgrade_hero(
     })
     .await
 }
+
+#[post("/battle", format = "json", data = "<battle>")]
+pub async fn battle(
+    auth: JWTAuth,
+    conn: DbConnection,
+    battle: Json<Battle>,
+) -> Result<Value, status::Custom<Value>> {
+    let user_id = auth.user.user_id;
+    conn.run(move |c| {
+        HeroRepository::battle(c, battle.into_inner(), user_id)
+            .map(|hero_info| json!(hero_info))
+            .map_err(|e| status::Custom(Status::InternalServerError, json!(e.to_string())))
+    })
+    .await
+}

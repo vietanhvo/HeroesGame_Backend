@@ -28,14 +28,21 @@ pub struct NewHero {
 }
 
 // Model for load heroes
-#[derive(Queryable, Deserialize)]
-pub struct LoadHero {
-    pub user_id: u64,
-}
+// #[derive(Queryable, Deserialize)]
+// pub struct LoadHero {
+//     pub user_id: u64,
+// }
 
 // Model for update hero
 #[derive(Deserialize)]
 pub struct UpgradeHero {
     pub user_id: u64,
     pub hero_id: u64,
+}
+
+// Model for battle
+#[derive(Deserialize)]
+pub struct Battle {
+    pub hero_id: u64,
+    pub monster_id: u64,
 }

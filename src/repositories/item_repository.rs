@@ -1,5 +1,5 @@
 use crate::models::item_models::*;
-use crate::repositories::user_repository::UserRepository;
+use super::user_repository::UserRepository;
 use crate::schema::{Item, UserItem};
 use diesel::prelude::*;
 use diesel::result::Error;

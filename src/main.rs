@@ -54,7 +54,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
             routes![
                 hero_route::buy_new_hero,
                 hero_route::load_heroes,
-                hero_route::upgrade_hero
+                hero_route::upgrade_hero,
+                hero_route::battle,
             ],
         )
         .mount(
