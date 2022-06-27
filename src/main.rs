@@ -5,7 +5,7 @@ use dotenv::dotenv;
 use std::env;
 
 use heroes_game_backend::database::{run_db_migrations, DbConnection};
-use heroes_game_backend::routes::{auth_route, catch_route, hero_route, item_route};
+use heroes_game_backend::routes::*;
 
 use rocket::fairing::AdHoc;
 use rocket::figment::{util::map, value};
@@ -55,14 +55,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 hero_route::buy_new_hero,
                 hero_route::load_heroes,
                 hero_route::upgrade_hero,
-                hero_route::battle,
             ],
         )
         .mount(
             "/item",
             routes![item_route::buy_new_item, item_route::load_items],
         )
-        // .mount("/hero", routes![hero_route::buy_new_hero])
+        .mount("/battle", routes![battle_route::battle])
         .register(
             "/",
             catchers![catch_route::unauthorized, catch_route::not_found],

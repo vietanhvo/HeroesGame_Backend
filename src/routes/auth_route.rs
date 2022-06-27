@@ -87,9 +87,8 @@ pub async fn register(
 
 #[get("/gold", format = "json")]
 pub async fn get_gold(auth: JWTAuth, conn: DbConnection) -> Result<Value, status::Custom<Value>> {
-    let user_id = auth.user.user_id;
     conn.run(move |c| {
-        UserRepository::get_gold(c, user_id)
+        UserRepository::get_gold(c, auth.user.user_id)
             .map(|gold| json!(gold))
             .map_err(|e| status::Custom(Status::InternalServerError, json!(e.to_string())))
     })
