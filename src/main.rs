@@ -5,7 +5,7 @@ use dotenv::dotenv;
 use std::env;
 
 use heroes_game_backend::database::{run_db_migrations, DbConnection};
-use heroes_game_backend::routes::{auth_route, catch_route, hero_route, item_route};
+use heroes_game_backend::routes::*;
 
 use rocket::fairing::AdHoc;
 use rocket::figment::{util::map, value};
@@ -24,7 +24,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let figment = rocket::Config::figment().merge(("databases", map!["mysql_db" => db]));
 
     // CORS
-    let allowed_origins = AllowedOrigins::some_exact(&["http://localhost:3000"]);
+    // let allowed_origins = AllowedOrigins::some_exact(&["http://localhost:3000"]);
+    let allowed_origins = AllowedOrigins::all();
     let cors = rocket_cors::CorsOptions {
         allowed_origins,
         allowed_methods: vec![Method::Get, Method::Post]
@@ -55,14 +56,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 hero_route::buy_new_hero,
                 hero_route::load_heroes,
                 hero_route::upgrade_hero,
-                hero_route::battle,
             ],
         )
         .mount(
             "/item",
             routes![item_route::buy_new_item, item_route::load_items],
         )
-        // .mount("/hero", routes![hero_route::buy_new_hero])
+        .mount("/battle", routes![battle_route::battle])
         .register(
             "/",
             catchers![catch_route::unauthorized, catch_route::not_found],

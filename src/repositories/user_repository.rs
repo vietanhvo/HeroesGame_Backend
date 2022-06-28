@@ -67,12 +67,10 @@ impl UserRepository {
                         Err(e) => Err(e.to_string()),
                     }
                 } else {
-                    return Err(String::from("Your password is incorrect!"));
+                    Err(String::from("Your password is incorrect!"))
                 }
             }
-            Err(e) => {
-                return Err(e.to_string());
-            }
+            Err(e) => Err(e.to_string()),
         }
     }
 
