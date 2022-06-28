@@ -24,7 +24,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let figment = rocket::Config::figment().merge(("databases", map!["mysql_db" => db]));
 
     // CORS
-    let allowed_origins = AllowedOrigins::some_exact(&["http://localhost:3000"]);
+    // let allowed_origins = AllowedOrigins::some_exact(&["http://localhost:3000"]);
+    let allowed_origins = AllowedOrigins::all();
     let cors = rocket_cors::CorsOptions {
         allowed_origins,
         allowed_methods: vec![Method::Get, Method::Post]
