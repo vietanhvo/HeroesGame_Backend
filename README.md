@@ -41,6 +41,21 @@ In the end, you need to remove the containers entirely, with the down command an
 docker-compose down -v
 ```
 
+## Troubleshooting
+
+Please read carefully our instructions in the .env_sample file. Your .env file is the only factor that decides whether Docker can run or not.
+1. `openssl rand -base64 32` cannot run on my machine?
+
+Unlike Ubuntu, Windows does not have a built-in openssl executable, you need to install it manually. For more information, read the instruction [here](https://www.openssl.org/source/)
+
+2. Why has Docker still crashed after all of the problems were fixed?
+
+On the first run, Docker created the images on your machine. Those images won't update automatically, so you need to build and run them again:
+```sh
+docker-compose build
+```
+Or, you can add `-- build` flag with the command `docker-compose up --build` to build images before starting containers.
+
 ## Authors
 1. Vo Anh Viet - ITITIU19243 - Project Leader
 2. Nguyen Duc Anh Tai - ITITIU19204
