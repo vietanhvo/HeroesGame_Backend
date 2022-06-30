@@ -4,7 +4,7 @@
 
 ## Summary
 
-Heroes game is a project for our WebApp course in which we are creating a web-based game. In our game, users may form their own hero squad to combat monsters. As a result, heroes gain experience and gold to help them level up. Initially, we give new users 100.000 gold to purchase any heroes in our store. Besides, if users want to upgrade their heroes' stars, they also need to buy gems to satisfy the requirement. In general, technologies we are employing for this project are as follows:
+Heroes game is a project for our WebApp course in which we are creating a web-based game. In our game, users may form their own hero squad to combat monsters. As a result, heroes gain experience and gold to help them level up. Initially, we give new users 100.000 gold to purchase any heroes in our store. Besides, if users want to upgrade their heroes' stars, they also need to buy gems to satisfy the requirement. In general, the technologies we used for this project are as follows:
 * Frontend: [Next.js](https://nextjs.org/)
 * Backend: [Rocket.rs](https://rocket.rs/) server & [Diesel.rs](https://diesel.rs/) ORM
 * Game Engine: [Cocos Creator](https://www.cocos.com/en/)
