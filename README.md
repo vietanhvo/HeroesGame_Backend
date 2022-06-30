@@ -12,7 +12,7 @@ Heroes game is a project for our WebApp course in which we are creating a web-ba
 
 ## Prerequisites
 
-We know that installation all thing is complicated and take a long time. Therefore, we Dockerized everything for convenience.
+We understand that installing everything is hard, time-consuming, and prone to conflict. As a result, we Dockerized everything for ease of use.
 * Git
 * Docker
 
