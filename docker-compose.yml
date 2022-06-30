@@ -8,8 +8,7 @@ services:
         depends_on:
             - server
     server:
-        image: vietanhvo/heroes_game_backend
-        # build: .
+        build: .
         ports:
             - 8000:8000
         depends_on:
